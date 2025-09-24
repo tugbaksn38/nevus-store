@@ -1,103 +1,149 @@
-import Image from "next/image";
+// src/app/page.js
+/* components/DummyCard.css buraya bağlı cardlar burada */
+// src/app/page.js
+/* components/DummyCard.css buraya bağlı cardlar burada */
+"use client";
+
+import { useState } from "react"; 
+import { useRouter } from "next/navigation";
+
+import Sepet from "@/components/AnaSepet";
+import Sidebar from "@/components/admin/Sidebar";
+import CategoryFilter from "@/components/CategoryFilter";
+import AnimatedProductList from "@/components/AnimatedProductList";
+
+import { useCart } from "@/hooks/useCart";
+import { useProducts } from "@/hooks/useProducts"; 
+import ApiHeader from "@/components/ApiHeader";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter(); 
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const [isOpen, setIsOpen] = useState(false); // Sidebar
+  const [isCartOpen, setIsCartOpen] = useState(false); // Sepet paneli
+
+  // useCart hook'unu güncellenmiş haliyle kullan
+  const { cart, addToCart, removeFromCart, updateCartItemQuantity } = useCart();
+
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [categorySlug, setCategorySlug] = useState(null); 
+  const [page, setPage] = useState(1); 
+  const [sortBy, setSortBy] = useState(""); // yeni state
+
+  const { products, loading, total } = useProducts({
+    searchTerm,
+    categorySlug,
+    page,
+    limit: 12,
+    sortBy, // buraya ekledik
+  });
+
+  return (
+    <div className="relative min-h-screen">
+      {/* --------------------------------------------------------------
+          HEADER (ORTAK API HEADER)
+      -------------------------------------------------------------- */}
+      <ApiHeader
+        cartCount={cart.reduce((total, item) => total + item.quantity, 0)}
+        onCartClick={() => setIsCartOpen(true)}
+      />
+
+      {/* --------------------------------------------------------------
+          MENÜ BUTONU
+      -------------------------------------------------------------- */}
+    
+
+      {/* --------------------------------------------------------------
+          YAN MENÜ (SIDEBAR)
+      -------------------------------------------------------------- */}
+      <Sidebar 
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
+
+      {/* --------------------------------------------------------------
+          ANA İÇERİK
+      -------------------------------------------------------------- */}
+      <div className="p-4">
+        <h1 className="text-3xl font-bold mb-6">Ana Sayfaya Hoş Geldiniz!</h1>
+
+        <input
+          type="text"
+          placeholder="Ürün ara..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(1);
+          }}
+          className="border p-2 rounded w-full mb-4"
+        />
+
+        <CategoryFilter
+          onSelect={(slug) => {
+            setCategorySlug(slug);
+            setPage(1);
+          }}
+        />
+
+        <div className="mb-4">
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(1);
+            }}
+            className="border p-2 rounded w-full md:w-60"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <option value="">Sıralama Seçin</option>
+            <option value="price_asc">Fiyata Göre (Artan)</option>
+            <option value="price_desc">Fiyata Göre (Azalan)</option>
+            <option value="name_asc">İsme Göre (A-Z)</option>
+            <option value="name_desc">İsme Göre (Z-A)</option>
+            <option value="latest">En Yeni</option>
+          </select>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {loading ? (
+          <p>Yükleniyor...</p>
+        ) : (
+          // Ana sayfada AnimatedProductList bileşenini kullandığınız kısmı güncelleyin:
+          <AnimatedProductList 
+            products={products} 
+            addToCart={addToCart}
+            removeFromCart={removeFromCart} // Yeni prop eklendi
+            cart={cart} // Yeni prop eklendi
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        )}
+
+        <div className="flex gap-2 mt-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((p) => p - 1)}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Önceki
+          </button>
+          <span>Sayfa {page}</span> 
+          <button
+            disabled={page * 12 >= total}
+            onClick={() => setPage((p) => p + 1)}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Sonraki
+          </button>
+        </div>
+      </div>
+
+      {/* --------------------------------------------------------------
+          SEPET PANELİ
+      -------------------------------------------------------------- */}
+      <Sepet 
+        isOpen={isCartOpen}
+        setIsOpen={setIsCartOpen}
+        cart={cart}
+        removeFromCart={removeFromCart}
+        updateCartItemQuantity={updateCartItemQuantity}
+      />
     </div>
   );
 }

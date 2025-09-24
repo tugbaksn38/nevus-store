@@ -1,0 +1,85 @@
+.like-button-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.like-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  box-shadow: rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+  background-color: #e8e8e8;
+  border-color: #ffe2e2;
+  border-style: solid;
+  border-width: 5px;
+  border-radius: 50%;
+  transition: transform 400ms cubic-bezier(.68,-0.55,.27,2.5), 
+              border-color 400ms ease-in-out,
+              background-color 400ms ease-in-out;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+}
+
+.like-button:hover {
+  background-color: #eee;
+  transform: scale(105%);
+}
+
+.like-button.active {
+  background-color: #ffeeee;
+  border-color: #ff6e6e;
+}
+
+.like-button .empty,
+.like-button .filled {
+  fill: rgb(255, 110, 110);
+  transition: all 0.4s ease-in-out;
+  width: 20px;
+  height: 20px;
+}
+
+.like-button .filled {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.like-button.active .empty {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.like-button.active .filled {
+  opacity: 1;
+  transform: scale(1);
+  animation: beatingHeart 1.2s infinite;
+}
+
+@keyframes beatingHeart {
+  0% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.15);
+  }
+  30% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.15);
+  }
+  60% {
+    transform: scale(1);
+  }
+}
+
+/* Butonun tıklanabilir alanını genişletmek için */
+.like-button-container {
+  position: relative;
+  z-index: 20; /* Diğer elementlerin üstünde görünmesini sağla */
+}

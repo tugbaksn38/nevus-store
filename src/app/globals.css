@@ -1,8 +1,16 @@
+/* global.css */
+
+
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+.dark {
+  --background: #04081f;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +20,38 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* İsteğe bağlı: Kendi stilleriniz için dark mode desteği */
+.dark .custom-element {
+  background-color: #04081f;
+  color: #f5f5f5;
+}
+
+.bg-chart {
+  background-color: #d1fae5; /* Tailwind bg-green-100 */
+  color: white;
+}
+
+.dark .bg-chart {
+  background-color: #064e3b; /* Tailwind bg-green-900 */
+  color: var(--foreground);
+}
+
+/* Aydınlık modda selection */
+::selection {
+  background-color: #2563eb; /* mavi */
+  color: white;
+}
+
+/* Dark modda selection */
+.dark ::selection {
+  background-color: #2563eb; /* aynı veya farklı koyu mavi */
+  color: white; /* koyu arkaplan üzerinde görünür */
+}
+
