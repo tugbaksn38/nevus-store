@@ -1,27 +1,22 @@
 //src/app/admin/page.js
-
+// src/app/admin/page.js
 
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { validateAdminLogin } from "../../lib/validation";
-// ------------------------------------------------------------------------------------------
 
-
-export default function AdminLogin() {
+// 🔹 Suspense içinde çalışacak bileşen
+function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "/";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  
-/* 📌 ---------------------------------------------------------------------------- */
-const [errors, setErrors] = useState([]); // Hem validasyon hem backend hataları burada
-
+  const [errors, setErrors] = useState([]); // hem validasyon hem backend hataları
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,7 +28,7 @@ const [errors, setErrors] = useState([]); // Hem validasyon hem backend hatalar�
       setErrors(validationErrors);
       return;
     }
-/* 📌 ---------------------------------------------------------------------------- */
+
     try {
       const res = await fetch("/api/login", {
         method: "POST",
@@ -45,22 +40,21 @@ const [errors, setErrors] = useState([]); // Hem validasyon hem backend hatalar�
 
       if (res.ok && data.success) {
         router.replace(from);
-} else {
-  setErrors([data.message || "Giriş başarısız"]); // eror yerine errors yazdık
-}
-} catch {
-  setErrors(["Sunucu hatası"]);  // eror yerine errors yazdık
-}
+      } else {
+        setErrors([data.message || "Giriş başarısız"]);
+      }
+    } catch {
+      setErrors(["Sunucu hatası"]);
+    }
   };
-// ----------------------------------------------------------------------------------------
+
   return (
     <div
       className="flex justify-center items-center h-screen bg-cover bg-center relative"
       style={{ backgroundImage: "url('/arkaplan.png')" }}
     >
-      {/* Arka plan bulanık overlay */}
-  <div className="absolute inset-0"></div>
-
+      {/* Arka plan overlay */}
+      <div className="absolute inset-0"></div>
 
       {/* Form */}
       <AnimatePresence>
@@ -75,7 +69,6 @@ const [errors, setErrors] = useState([]); // Hem validasyon hem backend hatalar�
           <h1 className="text-3xl font-bold text-center text-gray-900 mb-4">
             Admin Girişi
           </h1>
-
 
           <input
             type="text"
@@ -100,28 +93,33 @@ const [errors, setErrors] = useState([]); // Hem validasyon hem backend hatalar�
             Giriş Yap
           </button>
 
-{/* 📌 Hata listesi butonun altında */}
-<AnimatePresence>
-  {errors.length > 0 && (
-    <motion.ul
-      key="error-list"
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="text-red-500 text-sm mt-2 space-y-1 list-disc list-inside"
-    >
-      {errors.map((err, idx) => (
-        <li key={idx}>{err}</li>
-      ))}
-    </motion.ul>
-  )}
-</AnimatePresence>
-
-
-
-
+          {/* 📌 Hata listesi */}
+          <AnimatePresence>
+            {errors.length > 0 && (
+              <motion.ul
+                key="error-list"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-red-500 text-sm mt-2 space-y-1 list-disc list-inside"
+              >
+                {errors.map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </motion.ul>
+            )}
+          </AnimatePresence>
         </motion.form>
       </AnimatePresence>
     </div>
+  );
+}
+
+// 🔹 Suspense Wrapper
+export default function AdminLogin() {
+  return (
+    <Suspense fallback={<div className="text-center mt-20">Yükleniyor...</div>}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }
